@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Everything Altitude fetches is https. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+
+    <!-- Apple's aerials server chains to Apple Root CA, which Android's store lacks, so it is trusted
+         here beside the system store, for this one host. The certificate is Apple's own, from
+         apple.com/certificateauthority ("Apple Inc. Root"), SHA-256
+         B0:B1:73:0E:CB:C7:FF:45:05:14:2C:49:F1:29:5E:6E:DA:6B:CA:ED:7E:2C:68:C5:BE:91:B5:A1:10:01:F0:24.
+         Android 6 ignores this file: there the feed's fetch fails and the bundled list is used. -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">sylvan.apple.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/apple_root_ca" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

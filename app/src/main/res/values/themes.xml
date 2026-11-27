@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The settings window, behind the clip: what shows while there is no clip to play. -->
+    <color name="settings_background">#0B0C0F</color>
+
+    <!-- The settings: full screen, no action bar, no window animation. -->
+    <style name="Theme.Altitude.Settings" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/settings_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:colorAccent">#3184E3</item>
+    </style>
+</resources>

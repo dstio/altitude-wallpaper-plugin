@@ -1,0 +1,105 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+
+// versionCode = 30000000 + the number of commits, so every commit is a higher version.
+def gitCount = providers.exec {
+    commandLine 'git', 'rev-list', '--count', 'HEAD'
+    // No repository yet (or no commits): fall back to 0 instead of failing configuration.
+    ignoreExitValue = true
+}
+def gitCommitCount = gitCount.result.get().exitValue == 0
+        ? gitCount.standardOutput.asText.get().trim().toInteger()
+        : 0
+def vcode = 30000000 + gitCommitCount
+
+// Release signing: the environment variables ALTITUDE_KEYSTORE_FILE, ALTITUDE_STORE_PASSWORD,
+// ALTITUDE_KEY_ALIAS and ALTITUDE_KEY_PASSWORD (the release workflow sets them from its secrets), else
+// keystore.properties at the project root (never committed): storeFile, storePassword, keyAlias,
+// keyPassword. Without either the release build is left unsigned.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (System.getenv('ALTITUDE_KEYSTORE_FILE')) {
+    keystoreProps['storeFile'] = System.getenv('ALTITUDE_KEYSTORE_FILE')
+    keystoreProps['storePassword'] = System.getenv('ALTITUDE_STORE_PASSWORD') ?: ''
+    keystoreProps['keyAlias'] = System.getenv('ALTITUDE_KEY_ALIAS') ?: ''
+    keystoreProps['keyPassword'] = System.getenv('ALTITUDE_KEY_PASSWORD') ?: ''
+} else if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+def canSign = keystoreProps['storeFile'] != null
+
+android {
+    namespace 'ca.dstudio.altitude'
+    compileSdkVersion ANDROID_COMPILE_SDK_VERSION
+
+    defaultConfig {
+        applicationId 'ca.dstudio.altitude'
+        minSdkVersion ANDROID_MIN_SDK_VERSION
+        targetSdkVersion ANDROID_TARGET_SDK_VERSION
+        versionCode vcode
+        versionName "0.1.0"
+        base.archivesName = "altitude-$versionName-$versionCode"
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    signingConfigs {
+        if (canSign) {
+            release {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+                // v1 for Android 6.0, which predates APK Signature Scheme v2
+                v1SigningEnabled true
+                v2SigningEnabled true
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (canSign) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/*.kotlin_module']
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+
+    // The ATV Launcher wallpaper plugin protocol, from JitPack.
+    implementation "com.github.dstio:wallpaper-api:$WALLPAPER_API_VERSION"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$SERIALIZATION_VERSION"
+    implementation "com.squareup.okhttp3:okhttp:$OKHTTP_VERSION"
+    implementation "androidx.recyclerview:recyclerview:$RECYCLERVIEW_VERSION"
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}

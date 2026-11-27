@@ -1,0 +1,78 @@
+# Rebuilds the rolling `latest` release by hand from a versioned release that is already out:
+# its APK under the fixed file name, at the fixed address
+#
+#   https://github.com/dstio/altitude-wallpaper-plugin/releases/download/latest/altitude-atvl-plugin.apk
+#
+# release.yml does the same on every tag; this is for repairs and for releases made another way. The
+# `latest` release and tag are recreated at the released commit. It is never marked as GitHub's
+# "Latest": the versioned release keeps that.
+name: Latest
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The versioned release to copy, for example v0.1.0
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: latest-release
+  cancel-in-progress: false
+
+jobs:
+  latest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Check the release
+        run: |
+          set -euo pipefail
+          case "$TAG" in
+            v[0-9]*) ;;
+            *) echo "Not a versioned release: $TAG" >&2; exit 1 ;;
+          esac
+          state=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq '[.isDraft,.isPrerelease] | map(tostring) | join(" ")')
+          if [ "$state" != "false false" ]; then
+            echo "$TAG is a draft or a prerelease; the rolling release follows published releases only" >&2
+            exit 1
+          fi
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: Download the release APK and check its sum
+        run: |
+          set -euo pipefail
+          mkdir in
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir in \
+            --pattern "altitude-atvl-plugin-$VERSION.apk" --pattern "altitude-atvl-plugin-$VERSION.apk.sha256"
+          # compare the sums, not the file names: an older release's .sha256 may name the APK differently
+          expected=$(cut -d' ' -f1 "in/altitude-atvl-plugin-$VERSION.apk.sha256")
+          actual=$(sha256sum "in/altitude-atvl-plugin-$VERSION.apk" | cut -d' ' -f1)
+          if [ "$expected" != "$actual" ]; then
+            echo "SHA-256 mismatch: the release says $expected, the file is $actual" >&2
+            exit 1
+          fi
+          mkdir out
+          cp "in/altitude-atvl-plugin-$VERSION.apk" out/altitude-atvl-plugin.apk
+          (cd out && sha256sum altitude-atvl-plugin.apk > altitude-atvl-plugin.apk.sha256 && cat altitude-atvl-plugin.apk.sha256)
+
+      - name: Recreate the latest release at the released commit
+        run: |
+          set -euo pipefail
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TAG" --jq .sha)
+          sum=$(cut -d' ' -f1 out/altitude-atvl-plugin.apk.sha256)
+          gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
+          gh release create latest out/altitude-atvl-plugin.apk out/altitude-atvl-plugin.apk.sha256 \
+            --repo "$GITHUB_REPOSITORY" --target "$sha" --latest=false \
+            --title "Altitude, newest build" \
+            --notes "Always the newest release, under one file name. Today that is [Altitude $VERSION](https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG).
+
+          Fixed address: https://github.com/$GITHUB_REPOSITORY/releases/download/latest/altitude-atvl-plugin.apk
+
+          SHA-256 of altitude-atvl-plugin.apk: \`$sum\`"

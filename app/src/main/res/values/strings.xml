@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Altitude</string>
+    <string name="wallpaper_description">Aerial videos as your wallpaper</string>
+
+    <!-- Settings: the key hints in the panel's footer. The key names are the remote's own. -->
+    <string name="key_ok" translatable="false">OK</string>
+    <string name="key_back" translatable="false">BACK</string>
+    <string name="hint_open">Open</string>
+    <string name="hint_close">Close</string>
+    <string name="hint_back">Back</string>
+    <string name="hint_switch">Switch</string>
+    <string name="hint_select">Select</string>
+    <string name="hint_choose">Choose</string>
+    <string name="hint_close_list">Close list</string>
+    <string name="hint_allow">Allow</string>
+
+    <!-- Settings: the page -->
+    <plurals name="clips_match">
+        <item quantity="one">%1$d clip matches</item>
+        <item quantity="other">%1$d clips match</item>
+    </plurals>
+    <string name="nothing_to_play">Nothing to play until the folder is back.</string>
+    <string name="section_sources">Sources</string>
+    <string name="section_scenes">Scenes</string>
+    <string name="section_playback">Playback</string>
+    <string name="row_apple">Apple</string>
+    <plurals name="apple_clips">
+        <item quantity="one">%1$d clip</item>
+        <item quantity="other">%1$d clips</item>
+    </plurals>
+    <string name="row_my_videos">My videos</string>
+    <string name="choose_a_folder">Choose a folder</string>
+    <string name="allow_video_access">Allow video access to choose a folder</string>
+    <string name="allow_video_access_app_info">Allow video access in Altitude\'s app info</string>
+    <!-- A place: the drive's name, then each folder, as "USB drive › Videos › Drone". -->
+    <string name="place_separator" translatable="false">" › "</string>
+    <!-- After a long place the line wraps; a no-break space keeps the count with its word. -->
+    <plurals name="folder_videos">
+        <item quantity="one">%1$s · %2$d video</item>
+        <item quantity="other">%1$s · %2$d videos</item>
+    </plurals>
+    <string name="folder_not_connected">%1$s · Not connected</string>
+    <string name="scene_landscapes">Landscapes</string>
+    <string name="scene_cities">Cities</string>
+    <string name="scene_underwater">Underwater</string>
+    <string name="scene_space">Space</string>
+    <string name="row_quality">Quality</string>
+    <string name="quality_auto">Auto</string>
+    <string name="quality_1080" translatable="false">1080p</string>
+    <string name="quality_4k" translatable="false">4K</string>
+    <string name="quality_auto_value">Auto · %1$s</string>
+    <string name="quality_auto_line">%1$s on this device</string>
+    <string name="quality_1080_line">Less data, plays everywhere</string>
+    <string name="row_about">About</string>
+
+    <!-- Settings: the folder list -->
+    <string name="folder_none">None</string>
+    <string name="folder_none_line">Apple\'s clips only</string>
+    <string name="volume_this_device">This device</string>
+    <string name="volume_usb">USB drive</string>
+    <plurals name="videos">
+        <item quantity="one">%1$d video</item>
+        <item quantity="other">%1$d videos</item>
+    </plurals>
+
+    <!-- Settings: About -->
+    <string name="about_version">Version %1$s</string>
+    <string name="about_made_for">Made for ATV Launcher</string>
+    <string name="about_videos_title">Videos</string>
+    <string name="about_videos">Aerial videos by Apple, streamed from Apple\'s servers. Altitude is not made by Apple.</string>
+    <string name="about_api_title">Wallpaper API</string>
+    <string name="about_api" translatable="false">ATV Launcher Wallpaper API, Copyright 2026 DStudio</string>
+    <string name="about_licence_title">Licence</string>
+    <!-- The licence Altitude's own code is released under. -->
+    <string name="about_licence" translatable="false">Apache License 2.0</string>
+</resources>

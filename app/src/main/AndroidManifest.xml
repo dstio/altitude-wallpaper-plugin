@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- My videos: the media index's videos, nothing else (no All files access). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- Declared so Android 14's "some videos" answer can be told from full access: the settings ask again. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
+    <application
+        android:allowBackup="false"
+        android:banner="@drawable/banner"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true">
+
+        <!-- Only a launcher holding BIND_WALLPAPER can bind it. -->
+        <service
+            android:name=".provider.AltitudeService"
+            android:exported="true"
+            android:permission="ca.dstudio.atvlauncher.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="ca.dstudio.atvlauncher.wallpaper.SERVICE" />
+            </intent-filter>
+            <meta-data
+                android:name="ca.dstudio.atvlauncher.wallpaper.INFO"
+                android:resource="@xml/wallpaper_info" />
+        </service>
+
+        <!-- The chosen folder's videos, read-only, for a launcher holding BIND_WALLPAPER; no grants.
+             VideoProvider checks this entry when it starts. -->
+        <provider
+            android:name=".provider.VideoProvider"
+            android:authorities="${applicationId}.videos"
+            android:exported="true"
+            android:readPermission="ca.dstudio.atvlauncher.permission.BIND_WALLPAPER" />
+
+        <!-- The settings, which ATV Launcher opens from its plugin page. They read nothing from the
+             intent that starts them. BACK is handled as a key: the panel steps back through its own
+             pages and lists before the screen closes. -->
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:enableOnBackInvokedCallback="false"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Altitude.Settings" />
+    </application>
+
+</manifest>

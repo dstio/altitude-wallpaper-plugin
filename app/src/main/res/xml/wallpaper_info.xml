@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A new list every six hours; the service sets the real interval on every answer. -->
+<wallpaper-provider
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:wallpaperLabel="@string/app_name"
+    app:wallpaperDescription="@string/wallpaper_description"
+    app:wallpaperPreview="@drawable/wallpaper_preview"
+    app:wallpaperSettings="ca.dstudio.altitude.ui.SettingsActivity"
+    app:wallpaperKind="items"
+    app:wallpaperTypes="video"
+    app:refreshIntervalMs="21600000"
+    app:apiVersion="2" />

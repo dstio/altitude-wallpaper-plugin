@@ -1,0 +1,25 @@
+# Development notes, design pages and device screenshots stay out of the public repository.
+docs/dev/
+
+# Build output
+build/
+.gradle/
+.kotlin/
+captures/
+.externalNativeBuild
+.cxx
+release/
+*.aab
+*.apk
+
+# IDE
+*.iml
+.idea/
+
+# Machine-specific
+local.properties
+
+# Signing material
+*.jks
+*.keystore
+keystore.properties
